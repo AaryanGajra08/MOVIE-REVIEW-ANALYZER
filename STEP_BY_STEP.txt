@@ -1,0 +1,94 @@
+MOVIE REVIEW ANALYSIS - COMPLETE RUN STEPS
+===============================================
+
+1. EXTRACT THE ZIP
+   Extract Movie_Review_Analysis_Project.zip.
+
+2. OPEN IN VS CODE
+   Open the extracted Movie_Review_Analysis_Project folder.
+
+3. CHECK PYTHON
+   In the VS Code terminal:
+       python --version
+   Python 3.11-3.13 is recommended for the smoothest compatibility with ML packages.
+   If your Python 3.14 setup already installs the requirements successfully, you can use it.
+
+4. INSTALL PACKAGES
+       python -m pip install -r requirements.txt
+
+5. TRAINING (OPTIONAL)
+   The trained model is already included:
+       model\imdb_sentiment_model.joblib
+
+   To train again from the included IMDb dataset:
+       python model\train_model.py
+
+   The training script expects:
+       data\IMDB Dataset.csv
+
+6. START THE API
+       python -m uvicorn app:app --reload
+
+   Keep this terminal running.
+   API address:
+       http://127.0.0.1:8000
+
+7. CHECK THE API
+   Open in your browser:
+       http://127.0.0.1:8000/docs
+
+   You will see the FastAPI Swagger interface.
+   Test POST /predict with:
+       {
+         "review": "The acting was excellent and the story was fantastic."
+       }
+
+8. RUN THE WEBSITE
+   Open:
+       frontend\index.html
+
+   Then type a review and click "Analyze Review".
+   The website calls the real FastAPI backend and uses the trained IMDb model.
+
+9. BATCH CSV DEMO
+   Choose:
+       data\sample_reviews.csv
+   on the website.
+   The API will analyze all reviews and show a result table.
+
+10. COMMAND-LINE DEMO
+    With the API running, open another terminal and run:
+        python demo.py
+
+11. IMPORTANT
+    Do NOT close the API terminal while using the website.
+    If the website says "API not connected", start the API again.
+
+PROJECT STRUCTURE
+=================
+Movie_Review_Analysis_Project/
+├── app.py
+├── demo.py
+├── requirements.txt
+├── run_api.bat
+├── STEP_BY_STEP.txt
+├── README.txt
+├── model/
+│   ├── imdb_sentiment_model.joblib
+│   ├── metrics.json
+│   ├── prediction_demo.json
+│   └── train_model.py
+├── data/
+│   ├── IMDB Dataset.csv
+│   └── sample_reviews.csv
+└── frontend/
+    └── index.html
+
+MODEL
+=====
+Dataset: IMDb Dataset.csv
+Reviews: 50,000
+Features: TF-IDF word unigrams + bigrams
+Classifier: Logistic Regression
+Train/test split: 80/20
+Test accuracy from this training run: 91.00%

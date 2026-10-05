@@ -1,0 +1,49 @@
+{
+  "dataset": "IMDB Dataset.csv",
+  "total_reviews": 50000,
+  "positive_reviews": 25000,
+  "negative_reviews": 25000,
+  "train_reviews": 40000,
+  "test_reviews": 10000,
+  "preprocessing": "HTML tag removal, whitespace normalization",
+  "features": "TF-IDF word unigrams + bigrams",
+  "classifier": "Logistic Regression",
+  "accuracy": 0.91,
+  "classification_report": {
+    "negative": {
+      "precision": 0.9153160453808752,
+      "recall": 0.9036,
+      "f1-score": 0.9094202898550725,
+      "support": 5000.0
+    },
+    "positive": {
+      "precision": 0.9048183254344392,
+      "recall": 0.9164,
+      "f1-score": 0.9105723370429253,
+      "support": 5000.0
+    },
+    "accuracy": 0.91,
+    "macro avg": {
+      "precision": 0.9100671854076572,
+      "recall": 0.9099999999999999,
+      "f1-score": 0.9099963134489989,
+      "support": 10000.0
+    },
+    "weighted avg": {
+      "precision": 0.9100671854076572,
+      "recall": 0.91,
+      "f1-score": 0.909996313448999,
+      "support": 10000.0
+    }
+  },
+  "confusion_matrix": [
+    [
+      4518,
+      482
+    ],
+    [
+      418,
+      4582
+    ]
+  ]
+}

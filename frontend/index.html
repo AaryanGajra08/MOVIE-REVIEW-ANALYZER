@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Movie Review Analysis</title>
+<style>
+:root{--bg:#f4f7f1;--panel:#fff;--panel2:#e7f1e6;--text:#183126;--muted:#64766b;--line:#d7e3d7;--accent:#3d8b5b;--good:#2e9b63;--bad:#d85c5c}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,system-ui,sans-serif}
+header{height:68px;border-bottom:1px solid var(--line);display:flex;align-items:center;padding:0 34px;background:#f8faf6}.brand{display:flex;align-items:center;gap:11px;font-weight:800}.logo{width:36px;height:36px;border-radius:10px;background:var(--accent);display:grid;place-items:center;color:#fff}.brand small{display:block;color:var(--muted);font-weight:500;font-size:11px}
+main{max-width:1100px;margin:auto;padding:38px 25px}.hero{text-align:center;padding:20px}.eyebrow{color:var(--accent);font-size:12px;font-weight:800;letter-spacing:1.5px}.hero h1{font-size:42px;margin:10px}.hero p{color:var(--muted)}
+.grid{display:grid;grid-template-columns:1.1fr .9fr;gap:18px}.card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:22px;box-shadow:0 8px 25px #00000008}
+.label{color:var(--muted);font-size:13px;margin-bottom:8px}textarea{width:100%;min-height:190px;resize:vertical;border:1px solid var(--line);border-radius:12px;padding:15px;font:inherit;line-height:1.5;background:#fbfdf9;color:var(--text)}
+.actions{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap}.btn{border:0;border-radius:10px;padding:11px 15px;font-weight:800;cursor:pointer}.primary{background:var(--accent);color:#fff}.secondary{background:var(--panel2);color:var(--text)}
+.upload{margin-top:22px;padding-top:18px;border-top:1px solid var(--line)}.muted{color:var(--muted);font-size:13px;line-height:1.5}
+.sentiment{font-size:28px;font-weight:800;margin:12px 0}.positive{color:var(--good)}.negative{color:var(--bad)}.neutral{color:var(--muted)}
+.confidence{height:9px;background:#e6ede5;border-radius:20px;overflow:hidden;margin:15px 0}.confidence i{display:block;height:100%;background:var(--accent);width:0%;transition:.4s}
+.aspects{display:flex;gap:8px;flex-wrap:wrap;margin-top:15px}.aspect{background:#f5f9f3;border:1px solid var(--line);padding:9px 12px;border-radius:9px;font-size:12px}
+.batch{margin-top:18px}.status{margin-top:10px}.footer{text-align:center;color:#7b8b80;font-size:12px;padding:25px}
+table{width:100%;border-collapse:collapse;margin-top:15px;font-size:13px}th,td{text-align:left;padding:9px;border-bottom:1px solid var(--line)}th{background:#f5f9f3}
+@media(max-width:800px){.grid{grid-template-columns:1fr}.hero h1{font-size:34px}header{padding:0 16px}}
+</style>
+</head>
+<body>
+<header><div class="brand"><div class="logo">MR</div><div>Movie Review Analysis<small>NLP Sentiment Analyzer</small></div></div></header>
+<main>
+<section class="hero"><div class="eyebrow">NATURAL LANGUAGE PROCESSING</div><h1>Movie Review Analysis</h1><p>Analyze movie reviews using the trained IMDb sentiment model.</p></section>
+<section class="grid">
+<div class="card">
+<div class="label">Review text</div>
+<textarea id="review" placeholder="Write or paste a movie review here..."></textarea>
+<div class="actions"><button class="btn primary" id="analyze">Analyze Review</button><button class="btn secondary" id="clear">Clear</button></div>
+<div class="upload"><b>Upload Reviews</b><p class="muted">Upload CSV, TXT, or JSON for batch analysis.</p><input id="file" type="file" accept=".csv,.txt,.json" style="display:none"><label class="btn secondary" for="file">Choose Review File</label><div id="fileStatus" class="muted status"></div></div>
+</div>
+<div class="card">
+<div class="label">Prediction from trained model</div>
+<div id="sentiment" class="sentiment neutral">Waiting for review</div>
+<div id="summary" class="muted">Enter a review and click Analyze Review.</div>
+<div class="confidence"><i id="bar"></i></div>
+<div class="muted">Confidence: <b id="confidence">—</b></div>
+<div id="aspects" class="aspects"></div>
+</div>
+</section>
+<div class="card batch">
+<b>Batch Results</b>
+<div id="batchStatus" class="muted status">No batch file analyzed yet.</div>
+<div id="table"></div>
+</div>
+<div class="footer">Movie Review Analysis • IMDb-trained NLP Academic Project</div>
+</main>
+<script>
+const API="http://127.0.0.1:8000";
+const review=document.getElementById("review"), sentiment=document.getElementById("sentiment"), summary=document.getElementById("summary"), bar=document.getElementById("bar"), confidence=document.getElementById("confidence"), aspects=document.getElementById("aspects");
+
+document.getElementById("analyze").onclick=async()=>{
+  const text=review.value.trim();
+  if(!text){summary.textContent="Please enter a review.";return}
+  sentiment.textContent="Analyzing...";
+  try{
+    const r=await fetch(API+"/predict",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({review:text})});
+    if(!r.ok) throw new Error((await r.json()).detail||"API error");
+    const d=await r.json();
+    sentiment.textContent=d.sentiment;
+    sentiment.className="sentiment "+d.sentiment.toLowerCase();
+    summary.textContent=d.sentiment==="Positive"?"The trained model classified this review as positive.":"The trained model classified this review as negative.";
+    confidence.textContent=d.confidence+"%";
+    bar.style.width=d.confidence+"%";
+    aspects.innerHTML=d.aspects.map(x=>`<span class="aspect">${x}</span>`).join("");
+  }catch(e){sentiment.textContent="API not connected";sentiment.className="sentiment negative";summary.textContent=e.message+" Start the FastAPI server first."}
+};
+
+document.getElementById("clear").onclick=()=>{
+  review.value=""; sentiment.textContent="Waiting for review"; sentiment.className="sentiment neutral";
+  summary.textContent="Enter a review and click Analyze Review."; confidence.textContent="—"; bar.style.width="0%"; aspects.innerHTML="";
+};
+
+document.getElementById("file").onchange=async()=>{
+  const f=document.getElementById("file").files[0]; if(!f)return;
+  const fd=new FormData(); fd.append("file",f);
+  document.getElementById("fileStatus").textContent="Analyzing "+f.name+"...";
+  document.getElementById("batchStatus").textContent="Processing batch...";
+  try{
+    const r=await fetch(API+"/batch-predict",{method:"POST",body:fd});
+    if(!r.ok) throw new Error((await r.json()).detail||"Batch API error");
+    const d=await r.json();
+    document.getElementById("fileStatus").textContent=d.count+" review(s) analyzed.";
+    document.getElementById("batchStatus").textContent=d.count+" review(s) analyzed from "+d.filename;
+    const rows=d.results.map((x,i)=>`<tr><td>${i+1}</td><td>${x.sentiment}</td><td>${x.confidence}%</td><td>${x.aspects.join(", ")}</td></tr>`).join("");
+    document.getElementById("table").innerHTML=`<table><tr><th>#</th><th>Sentiment</th><th>Confidence</th><th>Aspects</th></tr>${rows}</table>`;
+    if(d.results[0]) review.value=d.results[0].review;
+  }catch(e){document.getElementById("fileStatus").textContent=e.message;document.getElementById("batchStatus").textContent="Batch analysis failed."}
+};
+</script>
+</body>
+</html>

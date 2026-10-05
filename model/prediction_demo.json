@@ -1,0 +1,12 @@
+[
+  {
+    "review": "The movie was excellent, the acting was brilliant and I really enjoyed it.",
+    "prediction": "positive",
+    "confidence": 97.41
+  },
+  {
+    "review": "The story was boring and disappointing. I would not recommend this movie.",
+    "prediction": "negative",
+    "confidence": 97.38
+  }
+]
